@@ -9,3 +9,7 @@ MANIFEST
 *.sublime-workspace
 
 
+.bv/*.bin
+.bv/*.so
+.idea/
+
