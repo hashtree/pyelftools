@@ -20,7 +20,7 @@ except ImportError:
 
 from ..common.py3compat import BytesIO
 from ..common.exceptions import ELFError
-from ..common.utils import struct_parse, elf_assert
+from ..common.utils import struct_parse, struct_build, elf_assert
 from .structs import ELFStructs
 from .sections import (
         Section, StringTableSection, SymbolTableSection,
@@ -91,6 +91,11 @@ class ELFFile(object):
         section_header = self._get_section_header(n)
         return self._make_section(section_header)
 
+    def set_section_header(self, name, obj):
+        self._init_section_name_map()
+        secnum = self._section_name_map.get(name, None)
+        return self._set_section_header(secnum, obj)
+
     def get_section_by_name(self, name):
         """ Get a section from the file, by name. Return None if no such
             section exists.
@@ -98,10 +103,7 @@ class ELFFile(object):
         # The first time this method is called, construct a name to number
         # mapping
         #
-        if self._section_name_map is None:
-            self._section_name_map = {}
-            for i, sec in enumerate(self.iter_sections()):
-                self._section_name_map[sec.name] = i
+        self._init_section_name_map()
         secnum = self._section_name_map.get(name, None)
         return None if secnum is None else self.get_section(secnum)
 
@@ -258,6 +260,12 @@ class ELFFile(object):
         else:
             raise ELFError('Invalid EI_DATA %s' % repr(ei_data))
 
+    def _init_section_name_map(self):
+        if self._section_name_map is None:
+            self._section_name_map = {}
+            for i, sec in enumerate(self.iter_sections()):
+                self._section_name_map[sec.name] = i
+
     def _section_offset(self, n):
         """ Compute the offset of section #n in the file
         """
@@ -288,6 +296,14 @@ class ELFFile(object):
             self.structs.Elf_Shdr,
             self.stream,
             stream_pos=self._section_offset(n))
+
+    def _set_section_header(self, n, obj):
+        return struct_build(
+            self.structs.Elf_Shdr,
+            obj,
+            self.stream,
+            stream_pos=self._section_offset(n)
+        )
 
     def _get_section_name(self, section_header):
         """ Given a section header, find this section's name in the file's

@@ -7,7 +7,7 @@
 # This code is in the public domain
 #-------------------------------------------------------------------------------
 from contextlib import contextmanager
-from .exceptions import ELFParseError, ELFError, DWARFError
+from .exceptions import ELFParseError, ELFBuildError, ELFError, DWARFError
 from .py3compat import int2byte
 from ..construct import ConstructError
 
@@ -32,6 +32,15 @@ def struct_parse(struct, stream, stream_pos=None):
         return struct.parse_stream(stream)
     except ConstructError as e:
         raise ELFParseError(str(e))
+
+
+def struct_build(struct, obj, stream, stream_pos=None):
+    try:
+        if stream_pos is not None:
+            stream.seek(stream_pos)
+        return struct.build_stream(obj, stream)
+    except ConstructError as e:
+        raise ELFBuildError(str(e))
 
 
 def parse_cstring_from_stream(stream, stream_pos=None):

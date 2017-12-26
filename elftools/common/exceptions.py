@@ -15,6 +15,9 @@ class ELFRelocationError(ELFError):
 class ELFParseError(ELFError):
     pass
 
+class ELFBuildError(ELFError):
+    pass
+
 class ELFCompressionError(ELFError):
     pass
 

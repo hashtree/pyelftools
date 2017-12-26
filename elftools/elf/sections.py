@@ -112,6 +112,14 @@ class Section(object):
         """
         return self.header[name]
 
+    def __setitem__(self, name, value):
+        """ Implement dict-like set to header entries
+        """
+        self.header[name] = value
+
+    def __getattr__(self, item):
+        return getattr(self.header, item)
+
     def __eq__(self, other):
         try:
             return self.header == other.header

@@ -55,6 +55,11 @@ class DynamicTag(object):
         """
         return self.entry[name]
 
+    def __setitem__(self, name, value):
+        """ Implement dict-like set value to entries
+        """
+        self.entry[name] = value
+
     def __repr__(self):
         return '<DynamicTag (%s): %r>' % (self.entry.d_tag, self.entry)
 
